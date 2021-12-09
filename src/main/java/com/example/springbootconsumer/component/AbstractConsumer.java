@@ -39,8 +39,7 @@ public abstract class AbstractConsumer {
             records = kafkaConsumer.poll(Duration.ofMillis(100));
 
             for (var consumerRecord : records) {
-                // inject a spring @Service bean to perform the work
-                consume(consumerRecord);
+                consume(consumerRecord); // this is implmented this way to assist with integration testing
             }
 
             // while this is slower it's less complex and probably fast enough since we will scale using

@@ -22,7 +22,7 @@ public class UopKafkaEventConsumerInitializer {
         Runnable runnable = () -> {
 
             while (!closed.get()) {
-                abstractConsumer.pollConsumer();
+                abstractConsumer.pollConsumer(); // this is implemented this way to assit with unit testing
             }
 
         };
