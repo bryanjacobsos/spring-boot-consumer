@@ -199,10 +199,17 @@ public class ExceptionMessage {
 
     }
 
+    /**
+     * maybe it makes sense to add this method here????
+     *
+     * @param exceptionMessageJsonWithDelimiter
+     * @return
+     */
     public static ExceptionMessage toExceptionMessageRemoveDelimiter(String exceptionMessageJsonWithDelimiter) {
 
         var exceptionMessageJsonDelimiterRemoved = exceptionMessageJsonWithDelimiter.replace(EXCEPTION_MESSAGE_DELIMITER, "");
 
+        // this needs more consideration....because its no bueno but was just a quick thing to show the test
         try {
             return om.readValue(exceptionMessageJsonDelimiterRemoved, ExceptionMessage.class);
         } catch (JsonProcessingException e) {

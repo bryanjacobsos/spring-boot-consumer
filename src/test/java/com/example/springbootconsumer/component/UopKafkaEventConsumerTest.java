@@ -61,7 +61,7 @@ public class UopKafkaEventConsumerTest {
         // invoked the method so that exception handling will get invoked
         consumer.pollConsumer();
 
-        // Logback is configured to write to a file to the file system....read that logged message in
+        // Logback is configured to write to a file on the file system...read that logged message from the log file
         var fileContents = Files.readString(Path.of(file.toURI()));
 
         // convert the json message to a map
@@ -84,33 +84,40 @@ public class UopKafkaEventConsumerTest {
         // create mock
         var mockKafkaConsumer = mock(KafkaConsumer.class);
 
-        // mock out poll method to throw a possible exception from that method
-        var records =
-                List.of(new ConsumerRecord<>("topic", 1, 1, "key", "value"));
+        // this time the poll method needs to run without an exception so need to give it all the stuff it needs
+        var records = List.of(new ConsumerRecord<>("topic", 1, 1, "key", "value"));
 
-        var map =
-                Map.of(new TopicPartition("topic", 1), records);
+        var map = Map.of(new TopicPartition("topic", 1), records);
 
         var consumerRecords = new ConsumerRecords<>(map);
 
         when(mockKafkaConsumer.poll(any(Duration.class))).thenReturn(consumerRecords);
+
+        // make the commitAsync throw the timeoutexception
         doThrow(new TimeoutException("too long")).when(mockKafkaConsumer).commitSync();
 
+        // assign mock consumer
         uopKafkaEventConsumer.kafkaConsumer = mockKafkaConsumer;
 
+        // now we poll but this time commitAsync is configured to throw an exception
         uopKafkaEventConsumer.pollConsumer();
 
-        // Logback is configured to write to a file to the file system....read that logged message in
+        // Logback is configured to write to a file on the file system...read that logged message from the log file
         var fileContents = Files.readString(Path.of(file.toURI()));
 
+        // check that the Exception Message Delimiter is present in the message
         assertTrue(fileContents.contains(EXCEPTION_MESSAGE_DELIMITER));
 
+        // the entire log message is a json object so simply convert that to a java map
         var jsonMap = mapper.readValue(fileContents, Map.class);
 
+        // the message property in the json contains ExceptionMessage as json...but it also contains the delimiter
         var exceptionMessageWithDelimiter = (String) jsonMap.get("message");
 
+        // remove the delimiter and convert to an ExceptionMessage
         var exceptionMessage = toExceptionMessageRemoveDelimiter(exceptionMessageWithDelimiter);
 
+        // now we can assert whatever we are interested in proving
         assertEquals(UNEXPECTED_EXCEPTION, exceptionMessage.getExceptionType());
     }
 
