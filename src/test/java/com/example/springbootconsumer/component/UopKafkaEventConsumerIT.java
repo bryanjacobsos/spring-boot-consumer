@@ -1,15 +1,11 @@
 package com.example.springbootconsumer.component;
 
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.test.context.EmbeddedKafka;
-import org.springframework.stereotype.Component;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -29,9 +25,14 @@ public class UopKafkaEventConsumerIT {
     private String topic;
 
     @Test
-    public void shouldShutdownConsumer()  {
+    public void shouldShutdownConsumer() throws InterruptedException {
 
-        System.out.println();
+        kafkaTemplate.send(topic, "i'll send an sos to the world");
+
+        // todo: find a way to remove the thread.sleep to get the test to pass
+        Thread.sleep(500);
+
+
 
 
     }
