@@ -7,9 +7,7 @@
                 <appendLineSeparator>true</appendLineSeparator>
             </layout>
         </encoder>
-
     </appender>
-
 
     <root level="info">
         <appender-ref ref="STDOUT" />

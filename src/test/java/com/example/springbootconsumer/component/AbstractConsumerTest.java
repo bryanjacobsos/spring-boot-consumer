@@ -120,6 +120,4 @@ public class AbstractConsumerTest {
         // now we can assert whatever we are interested in proving
         assertEquals(UNEXPECTED_EXCEPTION, exceptionMessage.getExceptionType());
     }
-
-
 }

@@ -4,12 +4,13 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-@Profile("!test")
+@Profile("test")
 @Component
-public class UopKafkaEventConsumer extends AbstractConsumer {
+class MockAbstractConsumer extends AbstractConsumer {
 
     @Override
     public void consume(ConsumerRecord<String, String> consumerRecord) {
-        System.out.println("sending to some destination: " + consumerRecord);
+        System.out.println("performing test things: " + consumerRecord.value());
+//            uopKafkaEventConsumerInitializer.shutdown();
     }
 }

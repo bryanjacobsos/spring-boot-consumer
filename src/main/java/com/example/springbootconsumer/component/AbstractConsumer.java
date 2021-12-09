@@ -25,7 +25,7 @@ public abstract class AbstractConsumer {
 
     public static final String NULL_RECORD_MSG = "The ConsumerRecord was null because the poll method threw an exception. No further information available";
 
-    @Value("${kafka.input.topic}") // see application.properties
+    @Value("${kafka.topic.in}") // see application.properties
     String inputTopic;
 
     @Autowired
