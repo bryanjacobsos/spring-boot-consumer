@@ -2,8 +2,12 @@ package com.example.springbootconsumer.component;
 
 import com.example.springbootconsumer.exception.ExceptionMessage;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.FencedInstanceIdException;
+import org.apache.kafka.common.errors.TimeoutException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -14,9 +18,14 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 
+import static com.example.springbootconsumer.exception.ExceptionMessage.EXCEPTION_MESSAGE_DELIMITER;
+import static com.example.springbootconsumer.exception.ExceptionMessage.ExceptionType.UNEXPECTED_EXCEPTION;
+import static com.example.springbootconsumer.exception.ExceptionMessage.toExceptionMessageRemoveDelimiter;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 
@@ -59,17 +68,51 @@ public class UopKafkaEventConsumerTest {
         var jsonMap = mapper.readValue(fileContents, Map.class);
 
         // get the actual message contents for the ExceptionMessage
-        var exceptionMessageAsString = (String)jsonMap.get("message");
+        var exceptionMessageAsJson = (String)jsonMap.get("message");
 
         // Convert the ExceptionMessage into its class/object representation
-        var exceptionMessage = mapper.readValue(exceptionMessageAsString, ExceptionMessage.class);
+        var exceptionMessage = mapper.readValue(exceptionMessageAsJson, ExceptionMessage.class);
 
         // should have a valid message to assert against
         assertEquals(UopKafkaEventConsumer.NULL_RECORD_MSG, exceptionMessage.getAdditionalInfo());
     }
 
     @Test
-    public void commitSyncShouldThrowAnException() {
-        // TODO: implement this
+    public void commitSyncShouldThrowAnException() throws IOException {
+        var uopKafkaEventConsumer = new UopKafkaEventConsumer();
+
+        // create mock
+        var mockKafkaConsumer = mock(KafkaConsumer.class);
+
+        // mock out poll method to throw a possible exception from that method
+        var records =
+                List.of(new ConsumerRecord<>("topic", 1, 1, "key", "value"));
+
+        var map =
+                Map.of(new TopicPartition("topic", 1), records);
+
+        var consumerRecords = new ConsumerRecords<>(map);
+
+        when(mockKafkaConsumer.poll(any(Duration.class))).thenReturn(consumerRecords);
+        doThrow(new TimeoutException("too long")).when(mockKafkaConsumer).commitSync();
+
+        uopKafkaEventConsumer.kafkaConsumer = mockKafkaConsumer;
+
+        uopKafkaEventConsumer.pollConsumer();
+
+        // Logback is configured to write to a file to the file system....read that logged message in
+        var fileContents = Files.readString(Path.of(file.toURI()));
+
+        assertTrue(fileContents.contains(EXCEPTION_MESSAGE_DELIMITER));
+
+        var jsonMap = mapper.readValue(fileContents, Map.class);
+
+        var exceptionMessageWithDelimiter = (String) jsonMap.get("message");
+
+        var exceptionMessage = toExceptionMessageRemoveDelimiter(exceptionMessageWithDelimiter);
+
+        assertEquals(UNEXPECTED_EXCEPTION, exceptionMessage.getExceptionType());
     }
+
+
 }

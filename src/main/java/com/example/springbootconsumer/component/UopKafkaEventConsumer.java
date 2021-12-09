@@ -35,7 +35,7 @@ public class UopKafkaEventConsumer {
 
             for (var consumerRecord : records) {
                 // inject a spring @Service bean to perform the work
-                System.out.println("sending to some destination" + consumerRecord);
+                System.out.println("sending to some destination: " + consumerRecord);
             }
 
             // while this is slower it's less complex and probably fast enough since we will scale using
