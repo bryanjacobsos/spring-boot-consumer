@@ -10,6 +10,10 @@ import java.util.Properties;
 @Configuration
 public class AppConfig {
 
+    /**
+     * the story contains additional configurations for the consumer be sure to notice those...
+     * @return
+     */
     @Bean
     public KafkaConsumer<String, String> kafkaConsumer() {
         var props = new Properties();

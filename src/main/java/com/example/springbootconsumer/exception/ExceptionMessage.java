@@ -13,7 +13,6 @@ import static com.example.springbootconsumer.exception.ExceptionMessage.Exceptio
 
 public class ExceptionMessage {
 
-    public static final String NULL_EXCEPTION_MSG = "The passed in Throwable was null. No stacktrace available";
     public static final String EXCEPTION_MESSAGE_DELIMITER = "<[ExceptionMessage]>: ";
 
     public static class Builder {
