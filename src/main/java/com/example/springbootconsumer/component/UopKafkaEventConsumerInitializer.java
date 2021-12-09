@@ -4,18 +4,40 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Component
 public class UopKafkaEventConsumerInitializer {
 
     @Autowired
-    UopKafkaEventConsumer uopKafkaEventConsumer;
+    AbstractConsumer abstractConsumer;
+
+    private final AtomicBoolean closed = new AtomicBoolean(false);
 
     @PostConstruct
     void startConsumer() {
-        // this is implemented this way to allow testing of the exception handling
-        while (true) {
-            uopKafkaEventConsumer.pollConsumer();
-        }
+
+        Runnable runnable = () -> {
+
+            while (!closed.get()) {
+                abstractConsumer.pollConsumer();
+            }
+
+        };
+
+        new Thread(runnable).start();
     }
+
+    @PreDestroy
+    void shutdownConsumer() {
+        shutdown();
+    }
+
+    public void shutdown() {
+        closed.set(true);
+        abstractConsumer.kafkaConsumer.wakeup();
+    }
+
+
 }

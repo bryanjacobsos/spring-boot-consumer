@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 
-public class UopKafkaEventConsumerTest {
+public class AbstractConsumerTest {
 
     private static final String LOG_FILE = "logs/app.log";
 

@@ -4,6 +4,8 @@ package com.example.springbootconsumer.exception;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 
 
@@ -72,6 +74,11 @@ public class ExceptionMessage {
 
         public Builder withStackTrace(Throwable t) {
 
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            t.printStackTrace(pw);
+
+            exceptionMessage.setStackTrace(sw.toString());
 
             return this;
         }
