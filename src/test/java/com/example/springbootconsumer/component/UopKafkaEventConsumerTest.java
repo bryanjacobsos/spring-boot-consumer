@@ -45,7 +45,7 @@ public class UopKafkaEventConsumerTest {
     }
 
     @Test
-    public void shouldGetNullConsumerRecordMessage() throws IOException {
+    public void force_poll_to_throw_exception_verify_exception_handing_and_logging() throws IOException {
 
         var consumer = new UopKafkaEventConsumer();
 
@@ -78,7 +78,7 @@ public class UopKafkaEventConsumerTest {
     }
 
     @Test
-    public void commitSyncShouldThrowAnException() throws IOException {
+    public void force_commitSync_to_throw_exception_verify_exception_handling_and_logging() throws IOException {
         var uopKafkaEventConsumer = new UopKafkaEventConsumer();
 
         // create mock
